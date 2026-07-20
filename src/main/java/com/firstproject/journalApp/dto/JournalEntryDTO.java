@@ -4,20 +4,19 @@ import com.firstproject.journalApp.enums.Sentiment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.validation.constraints.NotEmpty;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class JournalEntryDTO {
 
     @NotEmpty
-    private String userName;
-    private String email;
-    private boolean sentimentAnalysis;
-    @NotEmpty
-    private String passWord;
+    private String title;
+    private String content;
+    private Sentiment sentiment;
 }
+
+
 
 
