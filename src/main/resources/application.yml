@@ -7,3 +7,16 @@ spring:
 #    com:
 #      firstproject:
 #        journalApp: INFO
+logging:
+  file:
+    path: ${LOG_PATH:logs}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+  endpoint:
+    health:
+      show-details: never

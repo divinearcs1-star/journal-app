@@ -1,0 +1,32 @@
+services:
+  springboot-app:
+    image: pankajbelote/journal-app:latest
+    container_name: journal-app
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    environment:
+      LOG_PATH: /logs
+    volumes:
+      - ./logs:/logs
+    depends_on:
+      - redis
+    networks:
+      - journal-network
+
+  redis:
+    image: redis:7.2
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - journal-network
+volumes:
+  redis-data:
+networks:
+  journal-network:

@@ -1,5 +1,6 @@
 <configuration>
-
+    <!-- Define log directory -->
+    <property name="LOG_PATH" value="${LOG_PATH:-logs}"/>
     <appender name="myConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>
@@ -9,11 +10,11 @@
     </appender>
 
     <appender name="myFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>
-            journalApp.log
-        </file>
+
+        <file>${LOG_PATH}/journalApp.log</file>
+
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>journalApp-%d{yyyy-MM-dd_HH-mm}.%i.log
+            <fileNamePattern>${LOG_PATH}/journalApp-%d{yyyy-MM-dd_HH}.%i.log
             </fileNamePattern>
             <maxFileSize>10MB</maxFileSize>
             <maxHistory>10</maxHistory>
