@@ -63,7 +63,7 @@ spring:
 server:
   port: ${SERVER_PORT}
   servlet:
-    context-path: /journal
+    context-path: /journalapp
 
 weather:
   api:
