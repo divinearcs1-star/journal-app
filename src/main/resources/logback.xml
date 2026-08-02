@@ -1,6 +1,6 @@
 <configuration>
     <!-- Define log directory -->
-    <property name="LOG_PATH" value="${LOG_PATH:-logs}"/>
+    <property name="LOG_PATH" value="${LOG_PATH:-/logs}"/>
     <appender name="myConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>
