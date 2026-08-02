@@ -20,7 +20,8 @@ public class SwaggerConfig {
           new Info().title("Journal App API's").description("By Pankaj")
         )
                 .servers(Arrays.asList(new Server().url("http://localhost:8081/journal").description("localhost"),
-                        new Server().url("http://localhost:8082/journal").description("live")))
+                        new Server().url("https://srv1845286.hstgr.cloud/journal").description("live"),
+                        new Server().url("https://srv1845286.hstgr.cloud/journalapp").description("live")))
                 .tags(Arrays.asList(
                         new Tag().name("Public APIs")
                 ))
