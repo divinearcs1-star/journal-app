@@ -19,7 +19,8 @@ public class SwaggerConfig {
         return new OpenAPI().info(
           new Info().title("Journal App API's").description("By Pankaj")
         )
-                .servers(Arrays.asList(new Server().url("http://localhost:8081/journal").description("localhost"),
+                .servers(Arrays.asList(new Server().url("http://localhost:8080/journal").description("localhost"),
+                        new Server().url("http://localhost:8081/journal").description("localhost"),
                         new Server().url("https://srv1845286.hstgr.cloud/journal").description("live"),
                         new Server().url("https://srv1845286.hstgr.cloud/journalapp").description("live")))
                 .tags(Arrays.asList(
