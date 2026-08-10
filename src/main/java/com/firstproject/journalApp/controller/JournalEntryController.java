@@ -24,7 +24,7 @@ import java.util.Optional;
 //@CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 @RestController
-@RequestMapping("/journal")
+@RequestMapping("/api/journal")
 @Tag(name = "Journal APIs")
 public class JournalEntryController {
 

@@ -22,7 +22,7 @@ import javax.validation.Valid;
 //@CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 @Tag(name = "User APIs")    // , description = "Read Update and Delete a User"
 public class UserController {
 

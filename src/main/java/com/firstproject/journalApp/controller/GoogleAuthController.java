@@ -23,7 +23,7 @@ import java.util.*;
 
 //@CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("/auth/google")
+@RequestMapping("/api/auth/google")
 @Slf4j
 public class GoogleAuthController {
 

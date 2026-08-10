@@ -23,7 +23,7 @@ import javax.validation.Valid;
 //@CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 @RestController
-@RequestMapping("/public")
+@RequestMapping("/api/public")
 @Tag(name = "Public APIs")
 public class PublicController {
 

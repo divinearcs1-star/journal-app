@@ -18,7 +18,7 @@ import java.util.List;
 //@CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 @Tag(name = "Admin APIs")
 public class AdminController {
 
