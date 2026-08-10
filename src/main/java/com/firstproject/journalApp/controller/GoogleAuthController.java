@@ -64,7 +64,7 @@ public class GoogleAuthController {
         params.add("client_id", clientId);
         params.add("client_secret", clientSecret);
 //            params.add("redirect_uri", "http://localhost:8081/journalapp/auth/google/callback");
-        params.add("redirect_uri", redirect_url + "/auth/google/callback");
+        params.add("redirect_uri", redirect_url + "/api/auth/google/callback");
 
         params.add("grant_type", "authorization_code");
 
@@ -117,7 +117,7 @@ public class GoogleAuthController {
                         + "?client_id=" + clientId
                         + "&redirect_uri="
                         + URLEncoder.encode(
-                        redirect_url + "/auth/google/callback",
+                        redirect_url + "/api/auth/google/callback",
                         StandardCharsets.UTF_8)
                         + "&response_type=code"
                         + "&scope=openid email profile"
