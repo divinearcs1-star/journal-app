@@ -13,12 +13,13 @@ A secure RESTful Journal Management Application built using **Spring Boot** foll
 - Public & Admin APIs
 - Weather API Integration
 - Redis Caching for External API Responses
-- Apache Kafka for Asynchronous Email Processing
+- Apache Kafka for Asynchronous user sentiment Email Processing
 - Scheduled Cron Jobs
 - Swagger/OpenAPI Documentation
 - Spring Boot Actuator for Application Health Monitoring
 - Logback Rolling File Logging
 - Environment-Based Configuration
+- Global Exception handler
 - Docker Containerization
 - GitHub Actions CI/CD
 - Production Deployment on Hostinger VPS using Docker & Nginx
@@ -55,7 +56,7 @@ MongoDB Atlas
 
 ## Security
 - Spring Security
-- JWT Authentication
+- JWT Access and Refresh Token Authentication
 - BCrypt Password Encryption
 - Google OAuth2 Login
 - Role-Based Authorization
