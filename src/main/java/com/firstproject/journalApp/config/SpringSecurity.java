@@ -42,6 +42,14 @@ public class SpringSecurity extends WebSecurityConfigurerAdapter {
                 .cors()
                 .and()
                 .authorizeRequests()
+                .antMatchers(
+                        "/",
+                        "/index.html",
+                        "/*.js",
+                        "/*.css",
+                        "/favicon.ico",
+                        "/assets/**"
+                ).permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/api/journal/**", "/api/user/**").authenticated()
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
