@@ -2,7 +2,7 @@ name: Build & Deploy Spring Boot
 on:
   push:
     branches:
-      - main
+      - frontend
 jobs:
   build:
     runs-on: ubuntu-latest
