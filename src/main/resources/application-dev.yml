@@ -68,3 +68,9 @@ server:
 weather:
   api:
     key: ${WEATHER_API}
+jwt:
+  secret: ${JWT_SECRET}
+redirect:
+  url: ${REDIRECT_URL}
+frontend:
+  url: ${FRONTEND_URL}

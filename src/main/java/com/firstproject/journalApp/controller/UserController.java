@@ -1,9 +1,9 @@
 package com.firstproject.journalApp.controller;
 
 import com.firstproject.journalApp.api.response.WeatherResponse;
-import com.firstproject.journalApp.dto.UserDTO;
+import com.firstproject.journalApp.dto.ApiResponse;
+import com.firstproject.journalApp.dto.ChangePasswordDTO;
 import com.firstproject.journalApp.entity.User;
-import com.firstproject.journalApp.repository.UserRepository;
 import com.firstproject.journalApp.service.UserService;
 import com.firstproject.journalApp.service.WeatherService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
+//@CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 @RestController
 @RequestMapping("/user")
@@ -27,54 +30,61 @@ public class UserController {
     private UserService userService;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private WeatherService weatherService;
 
-    @PutMapping
-    @Operation(summary = "Update user details")
-    public ResponseEntity<?> updateUser(@RequestBody UserDTO user) {
-        User newUser = new User();
-        newUser.setUserName(user.getUserName());
-        newUser.setPassWord(user.getPassWord());
-        System.out.println("update user");
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userName = authentication.getName();
-        User userInDb = userService.findbyUserName(userName);
-        userInDb.setUserName(newUser.getUserName());
-        userInDb.setPassWord(newUser.getPassWord());
-        boolean update = false;
-        update = userService.saveNewUser(userInDb);
-        if (update) {
-            return new ResponseEntity<>("User Details Updated", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("User Not Found", HttpStatus.NO_CONTENT);
+    @PutMapping("/password")
+    @Operation(summary = "Update User Password")
+    public ResponseEntity<ApiResponse> updateUser(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
+
+        String loggedUser = getLoggedInUserName();
+        User user = userService.findbyUserName(loggedUser);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse(false, "User not found"));
         }
+        userService.saveNewPassword(user, changePasswordDTO.getPassWord());
+        user.setRefreshToken(null);
+        userService.saveNewToken(user);
+        return ResponseEntity.ok(
+                new ApiResponse(true,"Password updated successfully. Please login again."));
     }
 
     @DeleteMapping
     @Operation(summary = "Delete a User")
-    public ResponseEntity<?> deleteUserById() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            userRepository.deleteByUserName(authentication.getName());
-            return new ResponseEntity<>("User Deleted Successfully", HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("Exception while deleting user ", e);
-            return new ResponseEntity<>("Error while deleting User", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiResponse> deleteUserById() {
+
+        String loggedUser = getLoggedInUserName();
+        User user = userService.findbyUserName(loggedUser);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse(false, "User not found"));
         }
+        userService.deletebyUserName(loggedUser);
+        return ResponseEntity.ok(
+                new ApiResponse(true, "User deleted successfully")
+        );
     }
 
-    @GetMapping("city/{city}")
+    @GetMapping("/weather/{city}")
     @Operation(summary = "Get Weather for city")
-    public ResponseEntity<?> greeting(@PathVariable String city) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity<ApiResponse> greeting(@PathVariable String city) {
+
+        String loggedUser = getLoggedInUserName();
         WeatherResponse weatherResponse = weatherService.getWeather(city);
         String greeting = "";
-        if (weatherResponse != null) {
-            greeting = " , weather feels like " + weatherResponse.getCurrent().getFeelslike();
+        if (weatherResponse != null && weatherResponse.getCurrent() != null) {
+            greeting = "Hi " + loggedUser + ", weather feels like "
+                    + weatherResponse.getCurrent().getFeelslike() + "°C in " + city;
+        } else {
+            greeting = "Hi " + loggedUser + ", weather information is currently unavailable for " + city;
         }
-        return new ResponseEntity<>("Hi " + authentication.getName() + greeting + " in " + city, HttpStatus.OK);
+        return ResponseEntity.ok(
+                new ApiResponse(true, greeting)
+        );
+    }
+
+    private String getLoggedInUserName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
 }

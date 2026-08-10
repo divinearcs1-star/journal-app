@@ -12,14 +12,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+//@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/auth/google")
 @Slf4j
@@ -30,6 +32,12 @@ public class GoogleAuthController {
 
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String clientSecret;
+
+    @Value("${redirect.url}")
+    private String redirect_url;
+
+    @Value("${frontend.url}")
+    private String frontend_url;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -48,64 +56,73 @@ public class GoogleAuthController {
 
     @GetMapping("/callback")
     public ResponseEntity<?> handleGoogleCallback(@RequestParam String code) {
-        try {
-            String tokenEndpoint = "https://oauth2.googleapis.com/token";
 
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("code", code);
-            params.add("client_id", clientId);
-            params.add("client_secret", clientSecret);
-            params.add("redirect_uri", "https://developers.google.com/oauthplayground");
-            params.add("grant_type", "authorization_code");
+        String tokenEndpoint = "https://oauth2.googleapis.com/token";
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("code", code);
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
+//            params.add("redirect_uri", "http://localhost:8081/journalapp/auth/google/callback");
+        params.add("redirect_uri", redirect_url + "/auth/google/callback");
 
-            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+        params.add("grant_type", "authorization_code");
 
-            ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenEndpoint, request, Map.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-            String idToken = (String) tokenResponse.getBody().get("id_token");
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-            String userInfoUrl = "https://oauth2.googleapis.com/tokeninfo?id_token=" + idToken;
+        ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenEndpoint, request, Map.class);
 
-            ResponseEntity<Map> userInfoResponse = restTemplate.getForEntity(userInfoUrl, Map.class);
+        String idToken = (String) tokenResponse.getBody().get("id_token");
 
-            if (userInfoResponse.getStatusCode() == HttpStatus.OK) {
-                Map<String, Object> userInfo = userInfoResponse.getBody();
-                String email = (String) userInfo.get("email");
-                UserDetails userDetails = null;
-                try {
-                    userDetails = userDetailsService.loadUserByUsername(email);
-                } catch (Exception e) {
-                    User user = new User();
-                    user.setEmail(email);
-                    user.setUserName(email);
-                    user.setPassWord(passwordEncoder.encode(UUID.randomUUID().toString()));
-                    user.setRoles(Arrays.asList("USER"));
-                    userRepository.save(user);
-                }
-                String jwtToken = jwtUtil.generateToken(email);
-                return ResponseEntity.ok(Collections.singletonMap("token", jwtToken));
+        String userInfoUrl = "https://oauth2.googleapis.com/tokeninfo?id_token=" + idToken;
+
+        ResponseEntity<Map> userInfoResponse = restTemplate.getForEntity(userInfoUrl, Map.class);
+
+        if (userInfoResponse.getStatusCode() == HttpStatus.OK) {
+            Map<String, Object> userInfo = userInfoResponse.getBody();
+            String email = (String) userInfo.get("email");
+            UserDetails userDetails = null;
+            try {
+                userDetails = userDetailsService.loadUserByUsername(email);
+            } catch (Exception e) {
+                User user = new User();
+                user.setEmail(email);
+                user.setUserName(email);
+                user.setSentimentAnalysis(true);
+                user.setPassWord(passwordEncoder.encode(UUID.randomUUID().toString()));
+                user.setRoles(Arrays.asList("USER"));
+                userRepository.save(user);
             }
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (Exception e) {
-            log.error("Exception occurred while handleGoogleCallback ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            String jwtToken = jwtUtil.generateToken(email);
+//                return ResponseEntity.ok(Collections.singletonMap("token", jwtToken));
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .header(
+                            HttpHeaders.LOCATION,
+//                                "http://localhost:4200/auth/callback?token="
+                            frontend_url + "/auth/callback?token="
+                                    + URLEncoder.encode(jwtToken, StandardCharsets.UTF_8)
+                    )
+                    .build();
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @GetMapping("/login")
+    public void login(HttpServletResponse response) throws IOException {
+        String url =
+                "https://accounts.google.com/o/oauth2/v2/auth"
+                        + "?client_id=" + clientId
+                        + "&redirect_uri="
+                        + URLEncoder.encode(
+                        redirect_url + "/auth/google/callback",
+                        StandardCharsets.UTF_8)
+                        + "&response_type=code"
+                        + "&scope=openid email profile"
+                        + "&access_type=offline"
+                        + "&prompt=consent";
+        response.sendRedirect(url);
     }
 }
-
-/*
-
-https://accounts.google.com/o/oauth2/auth?
-client_id=YOUR_CLIENT_ID
-    &redirect_uri=YOUR_REDIRECT_URI   -> /auth/google/callback
-    &response_type=code
-    &scope=email profile
-    &access_type=offline
-    &prompt=consent
-
-    Location: https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=https%3A%2F%2Fdevelopers.google.com%2Foauthplayground&prompt=consent&response_type=code&client_id=846624881983-ugaaap9uapakh26q44cvs3g5okkvjb7d.apps.googleusercontent.com&scope=openid+email+profile&access_type=offline
-
-*/

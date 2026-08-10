@@ -7,7 +7,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -23,16 +22,38 @@ public class UserService {
 
     private static final PasswordEncoder passwordencoder = new BCryptPasswordEncoder();
 
-//    public  static final Logger logger = LoggerFactory.getLogger(UserService.class);
-
     public void saveEntry(User user) {
         userRepository.save(user);
     }
 
     public boolean saveNewUser(User user) {
         try {
+            if (userRepository.findByUserName(user.getUserName()) != null) {
+                return false;
+            }
             user.setPassWord(passwordencoder.encode(user.getPassWord()));
             user.setRoles(Arrays.asList("USER"));
+            userRepository.save(user);
+            return true;
+        } catch (Exception e) {
+            log.debug("error occurred for {}", user.getUserName(), e);
+            return false;
+        }
+    }
+
+    public boolean saveNewToken(User user) {
+        try {
+            userRepository.save(user);
+            return true;
+        } catch (Exception e) {
+            log.debug("error occurred for {}", user.getUserName(), e);
+            return false;
+        }
+    }
+
+    public boolean saveNewPassword(User user, String newPassword) {
+        try {
+            user.setPassWord(passwordencoder.encode(newPassword));
             userRepository.save(user);
             return true;
         } catch (Exception e) {
@@ -57,6 +78,10 @@ public class UserService {
 
     public void deletebyId(ObjectId id) {
         userRepository.deleteById(id);
+    }
+
+    public void deletebyUserName(String username) {
+        userRepository.deleteByUserName(username);
     }
 
     public User findbyUserName(String username) {

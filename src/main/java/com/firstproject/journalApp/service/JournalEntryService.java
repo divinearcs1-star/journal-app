@@ -25,16 +25,21 @@ public class JournalEntryService {
     private UserService userService;
 
     @Transactional
-    public void saveEntry(JournalEntry journalEntry, String userName) {
+    public JournalEntry saveEntry(JournalEntry journalEntry, String userName) {
         try {
             User user = userService.findbyUserName(userName);
+            if (user == null) {
+                throw new RuntimeException("User not found : " + userName);
+            }
             journalEntry.setDate(LocalDateTime.now());
-            JournalEntry saved = journalEntryRepository.save(journalEntry);
-            user.getJournalentries().add(saved);
+            JournalEntry savedJournal = journalEntryRepository.save(journalEntry);
+            user.getJournalentries().add(savedJournal);
             userService.saveEntry(user);
+            log.info("Journal created successfully for user : {}", userName);
+            return savedJournal;
         } catch (Exception e) {
-            log.error(" error ", e);
-            throw new RuntimeException(e);
+            log.error("Error while saving journal.", e);
+            throw new RuntimeException("Unable to save journal", e);
         }
     }
 
@@ -52,18 +57,22 @@ public class JournalEntryService {
 
     @Transactional
     public boolean deletebyId(ObjectId id, String userName) {
-        boolean removed = false;
         try {
             User user = userService.findbyUserName(userName);
-            removed = user.getJournalentries().removeIf(x -> x.getId().equals(id));
-            if (removed) {
-                userService.saveEntry(user);
-                journalEntryRepository.deleteById(id);
+            if (user == null) {
+                throw new RuntimeException("User not found : " + userName);
             }
+            boolean removed = user.getJournalentries().removeIf(x -> x.getId().equals(id));
+            if (!removed) {
+                return false;
+            }
+            userService.saveEntry(user);
+            journalEntryRepository.deleteById(id);
+            log.info("Journal deleted successfully : {}", id);
+            return true;
         } catch (Exception e) {
             log.error("error ", e);
             throw new RuntimeException("An error occurred while deleting entry.", e);
         }
-        return removed;
     }
 }

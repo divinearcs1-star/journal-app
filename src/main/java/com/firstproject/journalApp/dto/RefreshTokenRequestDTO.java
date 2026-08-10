@@ -1,6 +1,5 @@
 package com.firstproject.journalApp.dto;
 
-import com.firstproject.journalApp.enums.Sentiment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,17 +9,8 @@ import javax.validation.constraints.NotBlank;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class JournalEntryDTO {
+public class RefreshTokenRequestDTO {
 
-    @NotBlank
-    private String title;
-
-    @NotBlank
-    private String content;
-
-    private Sentiment sentiment;
+    @NotBlank(message = "Refresh token is required")
+    private String refreshToken;
 }
-
-
-
-

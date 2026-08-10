@@ -22,7 +22,7 @@ public class EmailService {
             mail.setText(body);
             javaMailSender.send(mail);
         } catch (MailException e) {
-            log.error("expation while sending mail", e);
+            log.error("Exception while sending mail", e);
         }
     }
 

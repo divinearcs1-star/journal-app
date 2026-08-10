@@ -15,6 +15,8 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class WeatherService {
 
+    private static final String REDIS_KEY_PREFIX = "weather_of_";
+
     @Value("${weather.api.key}")
     private String apikey;
 
@@ -28,20 +30,29 @@ public class WeatherService {
     public RedisService redisService;
 
     public WeatherResponse getWeather(String city) {
-        WeatherResponse weatherResponse = redisService.get("weather_of_" + city, WeatherResponse.class);
-        if (weatherResponse != null) {
-            log.info("response present in redis");
-            return weatherResponse;
-        } else {
-            log.info("response not present inside redis");
-            String finalAPI = appCache.appCache.get(AppCache.keys.WEATHER_API.toString()).replace(Placeholders.CITY, city).replace(Placeholders.API_KEY, apikey);
-            ResponseEntity<WeatherResponse> response = restTemplate.exchange(finalAPI, HttpMethod.GET, null, WeatherResponse.class);
-            WeatherResponse body = response.getBody();
-            if (body != null){
-                redisService.set("weather_of_"+ city, body, 1800l);
+        try {
+            String redisKey = REDIS_KEY_PREFIX + city.trim().toLowerCase();
+            WeatherResponse weatherResponse = redisService.get(redisKey, WeatherResponse.class);
+            if (weatherResponse != null) {
+                log.info("Weather found in Redis for city : {}", city);
+                return weatherResponse;
             }
-            return body;
+            log.info("Weather not found in Redis for city : {}", city);
+            String weatherApi = appCache.appCache.get(AppCache.keys.WEATHER_API.toString());
+            if (weatherApi == null) {
+                throw new RuntimeException("Weather API URL not found in AppCache.");
+            }
+            String finalApi = weatherApi.replace(Placeholders.CITY, city).replace(Placeholders.API_KEY, apikey);
+            ResponseEntity<WeatherResponse> response = restTemplate.exchange(finalApi, HttpMethod.GET, null, WeatherResponse.class);
+            WeatherResponse weatheresponse = response.getBody();
+            if (weatheresponse != null) {
+                redisService.set(redisKey, weatheresponse, 1800L);
+                log.info("Weather cached in Redis for city : {}", city);
+            }
+            return weatheresponse;
+        } catch (Exception e) {
+            log.error("Error while fetching weather for city : {}", city, e);
+            return null;
         }
-
     }
 }

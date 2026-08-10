@@ -19,14 +19,14 @@ class JournalAppApplicationTests {
 
 	@Test
 	void add() {
-        User byUserName = userRepository.findByUserName("vipul");
+        User byUserName = userRepository.findByUserName("akash");
         assertTrue(!byUserName.getJournalentries().isEmpty());
     }
 
     @ParameterizedTest
     @ValueSource( strings = {
             "shyam",
-            "vipul"
+            "akash"
     })
     public void test(String name) {
         assertNotNull(userRepository.findByUserName(name));

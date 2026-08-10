@@ -21,6 +21,7 @@ public class SwaggerConfig {
         )
                 .servers(Arrays.asList(new Server().url("http://localhost:8080/journal").description("localhost"),
                         new Server().url("http://localhost:8081/journal").description("localhost"),
+                        new Server().url("http://localhost:8081/journalapp").description("localhost"),
                         new Server().url("https://srv1845286.hstgr.cloud/journal").description("live"),
                         new Server().url("https://srv1845286.hstgr.cloud/journalapp").description("live")))
                 .tags(Arrays.asList(

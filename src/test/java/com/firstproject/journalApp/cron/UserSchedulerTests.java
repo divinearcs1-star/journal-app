@@ -13,6 +13,7 @@ public class UserSchedulerTests {
 
     @Test
     public void fetchusersamailtest(){
-        userScheduler.fetchUsersAndSendsamail();
+
+        userScheduler.sendWeeklySentimentEmails();
     }
 }

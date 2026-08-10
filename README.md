@@ -55,7 +55,7 @@ MongoDB Atlas
 
 ## Security
 - Spring Security
-- JWT Access & Refresh Token Authentication
+- JWT Authentication
 - BCrypt Password Encryption
 - Google OAuth2 Login
 - Role-Based Authorization
@@ -79,16 +79,17 @@ http://localhost:8080/journalapp/swagger-ui/index.html
 ```text
 POST   /public/signup
 POST   /public/login
+POST   /public/refresh
+POST   /public/logout
 GET    /journal
 POST   /journal
-GET    /journal/id/{id}
 GET    /journal
-DELETE /journal/id/{id}
+DELETE /journal/{id}
 GET    /admin/all-users
 POST   /admin/create-admin-user
-PUT    /user
+PUT    /user/password
 DELETE /user
-GET    /user/city/{city}
+GET    /user/weather/{city}
 ```
 
 ## Run Locally
@@ -117,6 +118,7 @@ Configure the following environment variables before running the application:
 ```text
 EMAIL_ID=
 EMAIL_PASS=
+JWT_SECRET=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 KAFKA_SERVER=
@@ -127,6 +129,8 @@ SERVER_PORT=
 WEATHER_API=
 REDIS_HOST=
 REDIS_PORT=
+REDIRECT_URL=
+FRONTEND_URL=
 SPRING_PROFILES_ACTIVE=dev
 ```
 > The application reads these values from the system environment or the deployment platform (Docker, VPS, CI/CD, etc.).

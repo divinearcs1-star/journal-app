@@ -15,30 +15,32 @@ import java.util.concurrent.TimeUnit;
 public class RedisService {
 
     @Autowired
-    public RedisTemplate redisTemplate;
+    public RedisTemplate<String, String> redisTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public <T> T get(String key, Class<T> entityclass) {
         try {
-            Object o = redisTemplate.opsForValue().get(key);
-            if (o == null) {
+            String value = redisTemplate.opsForValue().get(key);
+            if (value == null) {
                 log.info("Cache miss for key: {}", key);
                 return null;
             }
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(o.toString(), entityclass);
+            log.info("Cache hit for key : {}", key);
+            return objectMapper.readValue(value, entityclass);
         } catch (Exception e) {
-            log.error("Exception ", e);
+            log.error("Redis Exception while getting key", e);
             return null;
         }
     }
 
-    public void set(String key, Object o, Long ttl) {
+    public void set(String key, Object object, Long ttl) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            String Jasonvalue = mapper.writeValueAsString(o);
-            redisTemplate.opsForValue().set(key, Jasonvalue , ttl, TimeUnit.SECONDS);
+            String Jasonvalue = objectMapper.writeValueAsString(object);
+            redisTemplate.opsForValue().set(key, Jasonvalue, ttl, TimeUnit.SECONDS);
         } catch (Exception e) {
-            log.error("Exception ", e);
+            log.error("Redis Exception while writing key", e);
         }
     }
 }
