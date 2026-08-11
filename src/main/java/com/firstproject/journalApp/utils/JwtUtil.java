@@ -26,7 +26,7 @@ public class JwtUtil {
 
     private SecretKey signingKey;
 
-    private static final long ACCESS_TOKEN_EXPIRATION = 1 * 60 * 1000; // 15 min expiry
+    private static final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000; // 15 min expiry
     private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000L;
 
     @PostConstruct

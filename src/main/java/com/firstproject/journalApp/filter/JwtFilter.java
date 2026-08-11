@@ -36,8 +36,8 @@ public class JwtFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         String contextPath = request.getContextPath();
         String path = uri.substring(contextPath.length());
-        log.info("STATIC CHECK -> URI={}, contextPath={}, path={}",
-                uri, contextPath, path);
+//        log.info("STATIC CHECK -> URI={}, contextPath={}, path={}",
+//                uri, contextPath, path);
         if (path.equals("/")
                 || path.equals("/index.html")
                 || path.equals("/favicon.ico")
