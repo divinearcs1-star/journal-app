@@ -32,6 +32,17 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
+        log.info("JWT Filter URI: {}", request.getRequestURI());
+        String uri = request.getRequestURI();
+        // Allow Angular static files without JWT processing
+        if (uri.endsWith(".js")
+                || uri.endsWith(".css")
+                || uri.equals("/index.html")
+                || uri.equals("/favicon.ico")
+                || uri.startsWith("/assets/")) {
+            chain.doFilter(request, response);return;
+        }
+
         String authorizationHeader = request.getHeader("Authorization");
         String username = null;
         String jwt = null;
