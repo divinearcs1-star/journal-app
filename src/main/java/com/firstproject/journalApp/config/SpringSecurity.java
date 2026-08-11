@@ -79,7 +79,12 @@ public class SpringSecurity extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
 
 //        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-        configuration.setAllowedOrigins(Collections.singletonList(frontendUrl));
+//        configuration.setAllowedOrigins(Collections.singletonList(frontendUrl));
+
+        configuration.setAllowedOrigins(Arrays.asList(
+                "https://srv1845286.hstgr.cloud",
+                "http://localhost:4200"
+        ));
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
