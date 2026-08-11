@@ -34,17 +34,19 @@ public class JwtFilter extends OncePerRequestFilter {
 
         log.info("JWT Filter URI: {}", request.getRequestURI());
         String uri = request.getRequestURI();
-        log.info("JWT FILTER -> Authorization: {}", request.getHeader("Authorization"));
-        // Allow Angular static files without JWT processing
-        if (uri.endsWith(".js")
-                || uri.endsWith(".css")
-                || uri.equals("/index.html")
-                || uri.equals("/favicon.ico")
-                || uri.startsWith("/assets/")) {
+        String contextPath = request.getContextPath();
+        String path = uri.substring(contextPath.length());
+        log.info("STATIC CHECK -> URI={}, contextPath={}, path={}",
+                uri, contextPath, path);
+        if (path.equals("/")
+                || path.equals("/index.html")
+                || path.equals("/favicon.ico")
+                || path.endsWith(".js")
+                || path.endsWith(".css")
+                || path.endsWith(".map")
+                || path.startsWith("/assets/")) {
+            log.info("STATIC FILE ALLOWED -> {}", path);
             chain.doFilter(request, response);
-            log.info("JWT FILTER -> Response status: {} for {}",
-                    response.getStatus(),
-                    request.getRequestURI());
             return;
         }
 
