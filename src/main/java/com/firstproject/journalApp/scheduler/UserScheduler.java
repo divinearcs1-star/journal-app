@@ -41,7 +41,8 @@ public class UserScheduler {
      * previous 7 days and sends it for sentiment analysis.
      */
 //    @Scheduled(cron = "0 0 9 ? * MON")
-    @Scheduled(cron = "0 0/25 * ? * *")
+//    @Scheduled(cron = "0 0/25 * ? * *")
+    @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Kolkata")
     public void sendWeeklySentimentEmails() {
 
         log.info("Starting weekly sentiment analysis");
