@@ -80,6 +80,7 @@ public class SpringSecurity extends WebSecurityConfigurerAdapter {
 
 //        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         configuration.setAllowedOrigins(Collections.singletonList(frontendUrl));
+
 //        configuration.setAllowedOrigins(Arrays.asList(
 //                "https://srv1845286.hstgr.cloud",
 //                "http://localhost:4200"));
