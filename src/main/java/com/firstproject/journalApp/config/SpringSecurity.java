@@ -83,8 +83,7 @@ public class SpringSecurity extends WebSecurityConfigurerAdapter {
 
         configuration.setAllowedOrigins(Arrays.asList(
                 "https://srv1845286.hstgr.cloud",
-                "http://localhost:4200"
-        ));
+                "http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
