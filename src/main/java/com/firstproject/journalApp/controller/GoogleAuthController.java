@@ -1,5 +1,11 @@
 package com.firstproject.journalApp.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.firstproject.journalApp.dto.ApiResponse;
+import com.firstproject.journalApp.dto.AuthResponseDTO;
+import com.firstproject.journalApp.service.UserService;
+import com.firstproject.journalApp.utils.RefreshTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import com.firstproject.journalApp.entity.User;
 import com.firstproject.journalApp.repository.UserRepository;
@@ -57,8 +63,17 @@ public class GoogleAuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private RefreshTokenUtil refreshTokenUtil;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @GetMapping("/callback")
-    public ResponseEntity<?> handleGoogleCallback(@RequestParam String code) {
+    public ResponseEntity<?> handleGoogleCallback(@RequestParam String code) throws JsonProcessingException {
 
         String tokenEndpoint = "https://oauth2.googleapis.com/token";
 
@@ -99,14 +114,30 @@ public class GoogleAuthController {
                 user.setRoles(Arrays.asList("USER"));
                 userRepository.save(user);
             }
-            String jwtToken = jwtUtil.generateToken(email);
-//                return ResponseEntity.ok(Collections.singletonMap("token", jwtToken));
+//            String jwtToken = jwtUtil.generateToken(email);
+            //
+            String accessToken = jwtUtil.generateToken(email);
+            String refreshToken = jwtUtil.generateRefreshToken(email);
+            User dbUser = userService.findbyUserName(email);
+            if (dbUser == null) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse(false, "User not found"));
+            }
+            String refreshTokenHash = refreshTokenUtil.hashToken(refreshToken);
+            dbUser.setRefreshToken(refreshTokenHash);
+            userService.saveNewToken(dbUser);
+            AuthResponseDTO response = new AuthResponseDTO(accessToken, refreshToken);
+            log.info("Health is OK", response.getAccessToken());
+            log.info("Health is OK", response.getRefreshToken());
+            String responseJson = objectMapper.writeValueAsString(response);
+            //
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header(
                             HttpHeaders.LOCATION,
 //                                "http://localhost:4200/auth/callback?token="
                             frontend_url + contextPath + "/auth/callback?token="
-                                    + URLEncoder.encode(jwtToken, StandardCharsets.UTF_8)
+                                    + URLEncoder.encode(responseJson, StandardCharsets.UTF_8)
                     )
                     .build();
         }

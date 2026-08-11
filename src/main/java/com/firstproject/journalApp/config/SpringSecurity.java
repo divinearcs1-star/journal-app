@@ -45,6 +45,7 @@ public class SpringSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                         "/",
                         "/index.html",
+                        "/auth/callback",
                         "/favicon.ico",
                         "/**/*.js",
                         "/**/*.css",
