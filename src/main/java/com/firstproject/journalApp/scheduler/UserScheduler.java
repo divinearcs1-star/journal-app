@@ -35,7 +35,7 @@ public class UserScheduler {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    /**
+    /***
      * Runs every Monday at 9:00 AM
      * Calculates the most frequent sentiment from the
      * previous 7 days and sends it for sentiment analysis.
