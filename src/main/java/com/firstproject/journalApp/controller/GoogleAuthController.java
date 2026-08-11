@@ -39,6 +39,9 @@ public class GoogleAuthController {
     @Value("${frontend.url}")
     private String frontend_url;
 
+    @Value("${server.servlet.context-path:}")
+    private String contextPath;
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -102,7 +105,7 @@ public class GoogleAuthController {
                     .header(
                             HttpHeaders.LOCATION,
 //                                "http://localhost:4200/auth/callback?token="
-                            frontend_url + "/auth/callback?token="
+                            frontend_url + contextPath + "/auth/callback?token="
                                     + URLEncoder.encode(jwtToken, StandardCharsets.UTF_8)
                     )
                     .build();
@@ -112,6 +115,7 @@ public class GoogleAuthController {
 
     @GetMapping("/login")
     public void login(HttpServletResponse response) throws IOException {
+        log.info("contextPath: "+ contextPath);
         String url =
                 "https://accounts.google.com/o/oauth2/v2/auth"
                         + "?client_id=" + clientId
